@@ -11,7 +11,11 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"db:seed": "tsx prisma/seed.ts",
+		"db:studio": "prisma studio",
+		"db:migrate": "prisma migrate dev",
+		"db:generate": "prisma generate"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
@@ -21,6 +25,7 @@
 		"@tailwindcss/forms": "^0.5.11",
 		"@tailwindcss/vite": "^4.2.2",
 		"@types/node": "^24",
+		"@types/pg": "^8.20.0",
 		"eslint": "^10.4.0",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.17.0",
@@ -32,11 +37,14 @@
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.4.6",
 		"tailwindcss": "^4.2.2",
+		"tsx": "^4.22.4",
 		"typescript": "^6.0.2",
 		"typescript-eslint": "^8.58.1",
 		"vite": "^8.0.7"
 	},
 	"dependencies": {
-		"@prisma/client": "^7.8.0"
+		"@prisma/adapter-pg": "^7.8.0",
+		"@prisma/client": "^7.8.0",
+		"pg": "^8.21.0"
 	}
 }
