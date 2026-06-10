@@ -1,5 +1,7 @@
 <script lang="ts">
-	let { data } = $props();
+	import { enhance } from '$app/forms';
+
+	let { data, form } = $props();
 
 	const appointments = $derived(data.appointments);
 
@@ -60,6 +62,18 @@
 		</a>
 	</div>
 
+	{#if form?.message}
+		<div
+			class={`mb-6 rounded-2xl border p-4 text-sm font-bold ${
+				form?.success
+					? 'border-green-200 bg-green-50 text-green-800'
+					: 'border-red-200 bg-red-50 text-red-800'
+			}`}
+		>
+			{form.message}
+		</div>
+	{/if}
+
 	{#if appointments.length === 0}
 		<div class="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
 			<h3 class="text-xl font-black text-slate-950">Todavía no hay turnos</h3>
@@ -97,6 +111,9 @@
 							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
 								Dirección
 							</th>
+							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+								Acciones
+							</th>
 						</tr>
 					</thead>
 
@@ -132,6 +149,63 @@
 									{#if appointment.neighborhood}
 										<p class="text-slate-500">{appointment.neighborhood}</p>
 									{/if}
+								</td>
+
+								<td class="px-5 py-4">
+									<div class="flex min-w-56 flex-wrap gap-2">
+										<a
+											href={`/admin/turnos/${appointment.id}`}
+											class="rounded-full border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100"
+										>
+											Ver detalle
+										</a>
+
+										{#if appointment.status === 'PENDIENTE'}
+											<form method="POST" action="?/confirm" use:enhance>
+												<input type="hidden" name="appointmentId" value={appointment.id} />
+
+												<button
+													type="submit"
+													class="rounded-full bg-sky-600 px-3 py-2 text-xs font-bold text-white hover:bg-sky-700"
+												>
+													Confirmar
+												</button>
+											</form>
+										{/if}
+
+										{#if appointment.status === 'PENDIENTE' || appointment.status === 'CONFIRMADO'}
+											<form method="POST" action="?/finalize" use:enhance>
+												<input type="hidden" name="appointmentId" value={appointment.id} />
+
+												<button
+													type="submit"
+													class="rounded-full bg-green-600 px-3 py-2 text-xs font-bold text-white hover:bg-green-700"
+												>
+													Finalizar
+												</button>
+											</form>
+
+											<form
+												method="POST"
+												action="?/cancel"
+												use:enhance
+												onsubmit={(event) => {
+		if (!confirm('¿Seguro que querés cancelar este turno?')) {
+			event.preventDefault();
+		}
+	}}
+											>
+												<input type="hidden" name="appointmentId" value={appointment.id} />
+
+												<button
+													type="submit"
+													class="rounded-full bg-red-600 px-3 py-2 text-xs font-bold text-white hover:bg-red-700"
+												>
+													Cancelar
+												</button>
+											</form>
+										{/if}
+									</div>
 								</td>
 							</tr>
 						{/each}
