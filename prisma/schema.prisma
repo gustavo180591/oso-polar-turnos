@@ -50,6 +50,7 @@ model User {
   updatedAt    DateTime @updatedAt
 
   appointmentsCreated Appointment[] @relation("AppointmentCreatedBy")
+  sessions            Session[]
 }
 
 model Client {
@@ -161,4 +162,18 @@ model Service {
 
   @@index([isActive])
   @@index([visitReason])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
 }

@@ -98,6 +98,15 @@
 						Nuevo turno
 					</a>
 
+					<form method="POST" action="/logout" class="hidden sm:block">
+						<button
+							type="submit"
+							class="rounded-full bg-slate-100 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-red-50 hover:text-red-700"
+						>
+							Salir
+						</button>
+					</form>
+
 					<button
 						type="button"
 						class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-xl font-black text-slate-800 hover:bg-slate-200 lg:hidden"
@@ -136,6 +145,16 @@
 						>
 							Nuevo turno
 						</a>
+
+						<form method="POST" action="/logout">
+							<button
+								type="submit"
+								onclick={closeMenu}
+								class="w-full rounded-2xl bg-red-50 px-4 py-3 text-center text-sm font-black text-red-700 hover:bg-red-100"
+							>
+								Salir
+							</button>
+						</form>
 					</nav>
 				</div>
 			{/if}
