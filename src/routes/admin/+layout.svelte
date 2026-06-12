@@ -17,6 +17,10 @@
 				Turnos
 			</a>
 
+			<a href="/admin/calendario" class="rounded-xl px-4 py-3 font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700">
+				Calendario
+			</a>
+
 			<a href="/admin/clientes" class="rounded-xl px-4 py-3 font-semibold text-slate-700 hover:bg-sky-50 hover:text-sky-700">
 				Clientes
 			</a>
