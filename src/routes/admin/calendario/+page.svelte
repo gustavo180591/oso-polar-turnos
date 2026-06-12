@@ -114,12 +114,48 @@
 		return 'bg-slate-100 text-slate-700';
 	}
 
-function getCalendarUrl(weekValue: string, statusValue = selectedStatus) {
-	const weekParam = `week=${encodeURIComponent(weekValue)}`;
-	const statusParam = statusValue ? `&status=${encodeURIComponent(statusValue)}` : '';
+	function getCalendarUrl(weekValue: string, statusValue = selectedStatus) {
+		const weekParam = `week=${encodeURIComponent(weekValue)}`;
+		const statusParam = statusValue ? `&status=${encodeURIComponent(statusValue)}` : '';
 
-	return `/admin/calendario?${weekParam}${statusParam}`;
-}
+		return `/admin/calendario?${weekParam}${statusParam}`;
+	}
+
+	function getWhatsAppPhone(phone: string) {
+		let cleanedPhone = phone.replace(/\D/g, '');
+
+		if (cleanedPhone.startsWith('00')) {
+			cleanedPhone = cleanedPhone.slice(2);
+		}
+
+		if (cleanedPhone.startsWith('549')) {
+			return cleanedPhone;
+		}
+
+		if (cleanedPhone.startsWith('54')) {
+			const withoutCountryCode = cleanedPhone.slice(2);
+
+			if (withoutCountryCode.startsWith('9')) {
+				return cleanedPhone;
+			}
+
+			return `549${withoutCountryCode}`;
+		}
+
+		if (cleanedPhone.startsWith('0')) {
+			cleanedPhone = cleanedPhone.slice(1);
+		}
+
+		if (cleanedPhone.startsWith('15')) {
+			cleanedPhone = cleanedPhone.slice(2);
+		}
+
+		return `549${cleanedPhone}`;
+	}
+
+	function getWhatsAppUrl(phone: string) {
+		return `https://wa.me/${getWhatsAppPhone(phone)}`;
+	}
 </script>
 
 <svelte:head>
@@ -145,7 +181,7 @@ function getCalendarUrl(weekValue: string, statusValue = selectedStatus) {
 
 		<a
 			href="/admin/turnos/nuevo"
-			class="w-fit rounded-full bg-sky-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-sky-200 hover:bg-sky-700"
+			class="w-full rounded-full bg-sky-600 px-5 py-3 text-center text-sm font-bold text-white shadow-lg shadow-sky-200 hover:bg-sky-700 sm:w-fit"
 		>
 			Nuevo turno
 		</a>
@@ -230,9 +266,7 @@ function getCalendarUrl(weekValue: string, statusValue = selectedStatus) {
 
 						<span
 							class={`shrink-0 rounded-full px-3 py-1 text-xs font-black ${
-								day.isFull
-									? 'bg-red-100 text-red-800'
-									: 'bg-sky-100 text-sky-800'
+								day.isFull ? 'bg-red-100 text-red-800' : 'bg-sky-100 text-sky-800'
 							}`}
 						>
 							{day.totalAppointments}/{maxAppointmentsPerDay}
@@ -261,11 +295,7 @@ function getCalendarUrl(weekValue: string, statusValue = selectedStatus) {
 						</div>
 					{:else}
 						{#each day.appointments as appointment (appointment.id)}
-							<div
-								class={`rounded-2xl border p-4 ${getStatusClass(
-									appointment.status
-								)}`}
-							>
+							<div class={`rounded-2xl border p-4 ${getStatusClass(appointment.status)}`}>
 								<div class="flex items-start justify-between gap-3">
 									<div class="min-w-0">
 										<p class="text-lg font-black">
@@ -321,7 +351,7 @@ function getCalendarUrl(weekValue: string, statusValue = selectedStatus) {
 									</a>
 
 									<a
-										href={`https://wa.me/${appointment.client.phone.replace(/\D/g, '')}`}
+										href={getWhatsAppUrl(appointment.client.phone)}
 										target="_blank"
 										rel="noreferrer"
 										class="rounded-full bg-green-600 px-4 py-2 text-center text-xs font-bold text-white hover:bg-green-700"
