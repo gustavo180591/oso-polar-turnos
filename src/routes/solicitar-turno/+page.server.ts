@@ -10,6 +10,7 @@ const MAX_FILES = 3;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 20 * 1024 * 1024;
 const MAX_APPOINTMENTS_PER_DAY = 4;
+const MAX_PENDING_APPOINTMENTS_PER_PHONE = 2;
 
 const activeStatuses: AppointmentStatus[] = [
 	AppointmentStatus.PENDIENTE,
@@ -163,6 +164,23 @@ export const actions: Actions = {
 			return fail(400, {
 				success: false,
 				message: 'Ingresá un número de WhatsApp válido.',
+				values
+			});
+		}
+		const pendingAppointmentsForPhone = await prisma.appointment.count({
+			where: {
+				status: 'PENDIENTE',
+				client: {
+					phone: normalizedPhone
+				}
+			}
+		});
+
+		if (pendingAppointmentsForPhone >= MAX_PENDING_APPOINTMENTS_PER_PHONE) {
+			return fail(409, {
+				success: false,
+				message:
+					'Ya tenés solicitudes pendientes. Esperá la confirmación del técnico antes de pedir otro turno.',
 				values
 			});
 		}
@@ -336,12 +354,7 @@ export const actions: Actions = {
 
 			throw redirect(303, `/solicitar-turno/exito?id=${appointment.id}`);
 		} catch (error) {
-			if (
-				typeof error === 'object' &&
-				error !== null &&
-				'status' in error &&
-				'location' in error
-			) {
+			if (typeof error === 'object' && error !== null && 'status' in error && 'location' in error) {
 				throw error;
 			}
 
