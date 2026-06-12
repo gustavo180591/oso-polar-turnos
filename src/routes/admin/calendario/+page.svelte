@@ -229,7 +229,7 @@ function getCalendarUrl(weekValue: string, statusValue = selectedStatus) {
 						</div>
 
 						<span
-							class={`rounded-full px-3 py-1 text-xs font-black ${
+							class={`shrink-0 rounded-full px-3 py-1 text-xs font-black ${
 								day.isFull
 									? 'bg-red-100 text-red-800'
 									: 'bg-sky-100 text-sky-800'
@@ -267,18 +267,18 @@ function getCalendarUrl(weekValue: string, statusValue = selectedStatus) {
 								)}`}
 							>
 								<div class="flex items-start justify-between gap-3">
-									<div>
+									<div class="min-w-0">
 										<p class="text-lg font-black">
 											{appointment.time}
 										</p>
 
-										<p class="mt-1 font-black text-slate-950">
+										<p class="mt-1 wrap-break-word font-black text-slate-950">
 											{appointment.client.fullName}
 										</p>
 									</div>
 
 									<span
-										class={`rounded-full px-3 py-1 text-xs font-black ${getStatusBadgeClass(
+										class={`shrink-0 rounded-full px-3 py-1 text-xs font-black ${getStatusBadgeClass(
 											appointment.status
 										)}`}
 									>
@@ -299,7 +299,7 @@ function getCalendarUrl(weekValue: string, statusValue = selectedStatus) {
 											appointment.visitReason}
 									</p>
 
-									<p>
+									<p class="wrap-break-word">
 										<strong>Zona:</strong>
 										{appointment.neighborhood ?? appointment.address}
 									</p>

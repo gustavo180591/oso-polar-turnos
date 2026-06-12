@@ -55,8 +55,8 @@
 		</div>
 
 		<a
-			href="/solicitar-turno"
-			class="inline-flex rounded-full bg-sky-600 px-5 py-3 text-sm font-bold text-white hover:bg-sky-700"
+			href="/admin/turnos/nuevo"
+			class="inline-flex w-full justify-center rounded-full bg-sky-600 px-5 py-3 text-sm font-bold text-white hover:bg-sky-700 md:w-auto"
 		>
 			Crear turno
 		</a>
@@ -81,16 +81,147 @@
 				Cuando un cliente solicite un turno, aparecerá en este listado.
 			</p>
 			<a
-				href="/solicitar-turno"
+				href="/admin/turnos/nuevo"
 				class="mt-6 inline-flex rounded-full bg-sky-600 px-5 py-3 text-sm font-bold text-white hover:bg-sky-700"
 			>
 				Crear primer turno
 			</a>
 		</div>
 	{:else}
-		<div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+		<div class="grid gap-4 lg:hidden">
+			{#each appointments as appointment (appointment.id)}
+				<article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+					<div class="flex items-start justify-between gap-3">
+						<div class="min-w-0">
+							<p class="wrap-break-word text-lg font-black text-slate-950">
+								{appointment.client.fullName}
+							</p>
+
+							<p class="mt-1 text-sm font-semibold text-slate-500">
+								{appointment.client.phone}
+							</p>
+						</div>
+
+						<span
+							class={`shrink-0 rounded-full px-3 py-1 text-xs font-black ${getStatusClass(
+								appointment.status
+							)}`}
+						>
+							{statusLabels[appointment.status]}
+						</span>
+					</div>
+
+					<div class="mt-5 grid gap-3 text-sm">
+						<div class="rounded-2xl bg-slate-50 p-4">
+							<p class="font-bold text-slate-500">
+								Fecha y horario
+							</p>
+
+							<p class="mt-1 font-black text-slate-950">
+								{formatDate(appointment.date)} · {appointment.time}
+							</p>
+						</div>
+
+						<div class="grid gap-3 sm:grid-cols-2">
+							<div class="rounded-2xl bg-slate-50 p-4">
+								<p class="font-bold text-slate-500">
+									Equipo
+								</p>
+
+								<p class="mt-1 font-semibold text-slate-950">
+									{equipmentLabels[appointment.equipmentType]}
+								</p>
+							</div>
+
+							<div class="rounded-2xl bg-slate-50 p-4">
+								<p class="font-bold text-slate-500">
+									Motivo
+								</p>
+
+								<p class="mt-1 font-semibold text-slate-950">
+									{reasonLabels[appointment.visitReason]}
+								</p>
+							</div>
+						</div>
+
+						<div class="rounded-2xl bg-slate-50 p-4">
+							<p class="font-bold text-slate-500">
+								Dirección
+							</p>
+
+							<p class="mt-1 wrap-break-word font-semibold text-slate-950">
+								{appointment.address}
+							</p>
+
+							{#if appointment.neighborhood}
+								<p class="mt-1 text-slate-500">
+									{appointment.neighborhood}
+								</p>
+							{/if}
+						</div>
+					</div>
+
+					<div class="mt-5 grid gap-2 sm:grid-cols-2">
+						<a
+							class="rounded-full border border-slate-300 px-4 py-3 text-center text-sm font-bold text-slate-700 hover:bg-slate-100"
+							href={`/admin/turnos/${appointment.id}`}
+						>
+							Ver detalle
+						</a>
+
+						{#if appointment.status === 'PENDIENTE'}
+							<form method="POST" action="?/confirm" use:enhance>
+								<input type="hidden" name="appointmentId" value={appointment.id} />
+
+								<button
+									type="submit"
+									class="w-full rounded-full bg-sky-600 px-4 py-3 text-sm font-bold text-white hover:bg-sky-700"
+								>
+									Confirmar
+								</button>
+							</form>
+						{/if}
+
+						{#if appointment.status === 'PENDIENTE' || appointment.status === 'CONFIRMADO'}
+							<form method="POST" action="?/finalize" use:enhance>
+								<input type="hidden" name="appointmentId" value={appointment.id} />
+
+								<button
+									type="submit"
+									class="w-full rounded-full bg-green-600 px-4 py-3 text-sm font-bold text-white hover:bg-green-700"
+								>
+									Finalizar
+								</button>
+							</form>
+
+							<form
+								method="POST"
+								action="?/cancel"
+								use:enhance
+								onsubmit={(event) => {
+									if (!confirm('¿Seguro que querés cancelar este turno?')) {
+										event.preventDefault();
+									}
+								}}
+							>
+								<input type="hidden" name="appointmentId" value={appointment.id} />
+
+								<button
+									type="submit"
+									class="w-full rounded-full bg-red-600 px-4 py-3 text-sm font-bold text-white hover:bg-red-700"
+								>
+									Cancelar
+								</button>
+							</form>
+						{/if}
+					</div>
+				</article>
+			{/each}
+		</div>
+
+		<div class="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm lg:block">
 			<div class="overflow-x-auto">
-				<table class="min-w-full divide-y divide-slate-200">
+				<table class="min-w-[1100px] divide-y divide-slate-200">
 					<thead class="bg-slate-50">
 						<tr>
 							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
@@ -121,8 +252,13 @@
 						{#each appointments as appointment (appointment.id)}
 							<tr class="hover:bg-slate-50">
 								<td class="px-5 py-4">
-									<p class="font-bold text-slate-950">{appointment.client.fullName}</p>
-									<p class="text-sm text-slate-500">{appointment.client.phone}</p>
+									<p class="font-bold text-slate-950">
+										{appointment.client.fullName}
+									</p>
+
+									<p class="text-sm text-slate-500">
+										{appointment.client.phone}
+									</p>
 								</td>
 
 								<td class="px-5 py-4 text-sm text-slate-700">
@@ -134,28 +270,42 @@
 								</td>
 
 								<td class="px-5 py-4 text-sm text-slate-700">
-									<p class="font-bold">{formatDate(appointment.date)}</p>
-									<p class="text-slate-500">{appointment.time}</p>
+									<p class="font-bold">
+										{formatDate(appointment.date)}
+									</p>
+
+									<p class="text-slate-500">
+										{appointment.time}
+									</p>
 								</td>
 
 								<td class="px-5 py-4">
-									<span class={`rounded-full px-3 py-1 text-xs font-black ${getStatusClass(appointment.status)}`}>
+									<span
+										class={`rounded-full px-3 py-1 text-xs font-black ${getStatusClass(
+											appointment.status
+										)}`}
+									>
 										{statusLabels[appointment.status]}
 									</span>
 								</td>
 
 								<td class="px-5 py-4 text-sm text-slate-700">
-									<p>{appointment.address}</p>
+									<p class="max-w-xs wrap-break-word">
+										{appointment.address}
+									</p>
+
 									{#if appointment.neighborhood}
-										<p class="text-slate-500">{appointment.neighborhood}</p>
+										<p class="text-slate-500">
+											{appointment.neighborhood}
+										</p>
 									{/if}
 								</td>
 
 								<td class="px-5 py-4">
 									<div class="flex min-w-56 flex-wrap gap-2">
 										<a
-											href={`/admin/turnos/${appointment.id}`}
 											class="rounded-full border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100"
+											href={`/admin/turnos/${appointment.id}`}
 										>
 											Ver detalle
 										</a>
@@ -190,10 +340,10 @@
 												action="?/cancel"
 												use:enhance
 												onsubmit={(event) => {
-		if (!confirm('¿Seguro que querés cancelar este turno?')) {
-			event.preventDefault();
-		}
-	}}
+													if (!confirm('¿Seguro que querés cancelar este turno?')) {
+														event.preventDefault();
+													}
+												}}
 											>
 												<input type="hidden" name="appointmentId" value={appointment.id} />
 
