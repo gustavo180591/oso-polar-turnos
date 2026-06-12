@@ -18,7 +18,7 @@
 
 		<div class="mt-6 rounded-3xl bg-white p-6 shadow-xl sm:p-8">
 			<div class="mb-8">
-				<p class="text-sm font-bold uppercase tracking-wide text-sky-700">
+				<p class="text-sm font-bold tracking-wide text-sky-700 uppercase">
 					Oso Polar Refrigeración
 				</p>
 
@@ -27,18 +27,20 @@
 				</h1>
 
 				<p class="mt-4 max-w-2xl text-slate-600">
-					Completá tus datos, contanos qué equipo tenés y cuál es el motivo de la visita.
-					El turno quedará pendiente hasta que sea confirmado.
+					Completá tus datos, contanos qué equipo tenés y cuál es el motivo de la visita. El turno
+					quedará pendiente hasta que sea confirmado.
 				</p>
 			</div>
 
 			{#if form?.message}
-				<div class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+				<div
+					class="mb-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700"
+				>
 					{form.message}
 				</div>
 			{/if}
 
-			<form method="POST" use:enhance class="grid gap-6">
+			<form method="POST" enctype="multipart/form-data" use:enhance class="grid gap-6">
 				<div class="grid gap-5 md:grid-cols-2">
 					<div>
 						<label for="fullName" class="mb-2 block text-sm font-bold text-slate-700">
@@ -106,7 +108,10 @@
 							class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
 						>
 							<option value="">Seleccionar</option>
-							<option value="AIRE_ACONDICIONADO" selected={form?.values?.equipmentType === 'AIRE_ACONDICIONADO'}>
+							<option
+								value="AIRE_ACONDICIONADO"
+								selected={form?.values?.equipmentType === 'AIRE_ACONDICIONADO'}
+							>
 								Aire acondicionado
 							</option>
 							<option value="HELADERA" selected={form?.values?.equipmentType === 'HELADERA'}>
@@ -134,22 +139,21 @@
 							<option value="LIMPIEZA" selected={form?.values?.visitReason === 'LIMPIEZA'}>
 								Limpieza
 							</option>
-							<option value="MANTENIMIENTO" selected={form?.values?.visitReason === 'MANTENIMIENTO'}>
+							<option
+								value="MANTENIMIENTO"
+								selected={form?.values?.visitReason === 'MANTENIMIENTO'}
+							>
 								Mantenimiento
 							</option>
 							<option value="REPARACION" selected={form?.values?.visitReason === 'REPARACION'}>
 								Reparación
 							</option>
-							<option value="OTRO" selected={form?.values?.visitReason === 'OTRO'}>
-								Otro
-							</option>
+							<option value="OTRO" selected={form?.values?.visitReason === 'OTRO'}> Otro </option>
 						</select>
 					</div>
 
 					<div>
-						<label for="date" class="mb-2 block text-sm font-bold text-slate-700">
-							Fecha *
-						</label>
+						<label for="date" class="mb-2 block text-sm font-bold text-slate-700"> Fecha * </label>
 						<input
 							id="date"
 							name="date"
@@ -163,13 +167,15 @@
 						<label for="time" class="mb-2 block text-sm font-bold text-slate-700">
 							Horario *
 						</label>
+
 						<select
 							id="time"
 							name="time"
 							class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
 						>
 							<option value="">Seleccionar</option>
-							{#each availableTimes as time}
+
+							{#each availableTimes as time (time)}
 								<option value={time} selected={form?.values?.time === time}>
 									{time}
 								</option>
@@ -188,7 +194,29 @@
 						rows="5"
 						class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none focus:border-sky-500 focus:ring-4 focus:ring-sky-100"
 						placeholder="Ej: El aire enfría poco, pierde agua o hace ruido..."
-					>{form?.values?.problemDescription ?? ''}</textarea>
+						>{form?.values?.problemDescription ?? ''}</textarea
+					>
+				</div>
+
+				<div>
+					<label for="attachments" class="mb-2 block text-sm font-bold text-slate-700">
+						Foto o video del equipo
+					</label>
+
+					<input
+						id="attachments"
+						name="attachments"
+						type="file"
+						accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
+						multiple
+						class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3
+							file:mr-4 file:rounded-full file:border-0 file:bg-sky-100 file:px-4 file:py-2
+							file:font-bold file:text-sky-700 hover:file:bg-sky-200"
+					/>
+
+					<p class="mt-2 text-sm text-slate-500">
+						Podés adjuntar fotos JPG, PNG o WEBP, y videos MP4 o WEBM.
+					</p>
 				</div>
 
 				<div class="rounded-2xl border border-amber-200 bg-amber-50 p-4">
