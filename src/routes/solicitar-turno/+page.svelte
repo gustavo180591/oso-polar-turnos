@@ -17,6 +17,14 @@
 		</a>
 
 		<div class="mt-6 rounded-3xl bg-white p-6 shadow-xl sm:p-8">
+			<div class="mb-6 flex justify-center">
+				<img
+					src="/brand/logo-horizontal.jpeg"
+					alt="Oso Polar Refrigeraciones"
+					class="w-full max-w-sm rounded-3xl bg-black object-contain p-4 shadow-xl"
+				/>
+			</div>
+
 			<div class="mb-8">
 				<p class="text-sm font-bold tracking-wide text-sky-700 uppercase">
 					Oso Polar Refrigeración

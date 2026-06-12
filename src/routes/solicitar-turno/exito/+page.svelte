@@ -41,6 +41,14 @@ Problema: ${appointment.problemDescription}`
 <section class="min-h-screen bg-sky-50 px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
 	<div class="mx-auto max-w-3xl">
 		<div class="rounded-3xl bg-white p-6 text-center shadow-xl sm:p-10">
+			<div class="mb-6 flex justify-center">
+				<img
+					src="/brand/logo-circular.jpeg"
+					alt="Oso Polar Refrigeración"
+					class="h-28 w-28 rounded-full object-cover shadow-xl ring-4 ring-sky-100"
+				/>
+			</div>
+
 			<div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl">
 				✓
 			</div>
