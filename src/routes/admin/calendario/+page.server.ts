@@ -86,13 +86,17 @@ export const load: PageServerLoad = async ({ url }) => {
 			return toInputDate(appointment.date) === toInputDate(date);
 		});
 
+		const activeAppointments = dayAppointments.filter((appointment) => {
+			return appointment.status !== 'CANCELADO';
+		});
+
 		return {
 			date,
 			dateKey: toInputDate(date),
 			appointments: dayAppointments,
-			totalAppointments: dayAppointments.length,
-			availableSlots: Math.max(0, MAX_APPOINTMENTS_PER_DAY - dayAppointments.length),
-			isFull: dayAppointments.length >= MAX_APPOINTMENTS_PER_DAY
+			totalAppointments: activeAppointments.length,
+			availableSlots: Math.max(0, MAX_APPOINTMENTS_PER_DAY - activeAppointments.length),
+			isFull: activeAppointments.length >= MAX_APPOINTMENTS_PER_DAY
 		};
 	});
 

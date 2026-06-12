@@ -2,36 +2,25 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
 import { fail, redirect } from '@sveltejs/kit';
-import {
-	AttachmentType,
-	EquipmentType,
-	VisitReason
-} from '@prisma/client';
+import { AppointmentStatus, AttachmentType, EquipmentType, VisitReason } from '@prisma/client';
 import { prisma } from '$lib/server/prisma';
 import type { Actions } from './$types';
 
 const MAX_FILES = 3;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 20 * 1024 * 1024;
+const MAX_APPOINTMENTS_PER_DAY = 4;
 
-const allowedImageTypes = new Set([
-	'image/jpeg',
-	'image/png',
-	'image/webp'
-]);
+const activeStatuses: AppointmentStatus[] = [
+	AppointmentStatus.PENDIENTE,
+	AppointmentStatus.CONFIRMADO
+];
 
-const allowedVideoTypes = new Set([
-	'video/mp4',
-	'video/webm'
-]);
+const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
-const allowedTimes = new Set([
-	'08:30',
-	'10:00',
-	'15:00',
-	'16:30',
-	'18:00'
-]);
+const allowedVideoTypes = new Set(['video/mp4', 'video/webm']);
+
+const allowedTimes = new Set(['08:30', '10:00', '15:00', '16:30', '18:00']);
 
 type FormValues = {
 	fullName: string;
@@ -113,9 +102,7 @@ async function saveFiles(files: File[]): Promise<StoredAttachment[]> {
 		await writeFile(absolutePath, buffer);
 
 		storedFiles.push({
-			type: allowedImageTypes.has(file.type)
-				? AttachmentType.FOTO
-				: AttachmentType.VIDEO,
+			type: allowedImageTypes.has(file.type) ? AttachmentType.FOTO : AttachmentType.VIDEO,
 			url: `/uploads/${generatedFileName}`,
 			fileName: file.name,
 			mimeType: file.type,
@@ -128,9 +115,7 @@ async function saveFiles(files: File[]): Promise<StoredAttachment[]> {
 }
 
 async function deleteStoredFiles(files: StoredAttachment[]): Promise<void> {
-	await Promise.allSettled(
-		files.map((file) => unlink(file.absolutePath))
-	);
+	await Promise.allSettled(files.map((file) => unlink(file.absolutePath)));
 }
 
 export const actions: Actions = {
@@ -144,22 +129,16 @@ export const actions: Actions = {
 			neighborhood: String(formData.get('neighborhood') ?? '').trim(),
 			equipmentType: String(formData.get('equipmentType') ?? '').trim(),
 			visitReason: String(formData.get('visitReason') ?? '').trim(),
-			problemDescription: String(
-				formData.get('problemDescription') ?? ''
-			).trim(),
+			problemDescription: String(formData.get('problemDescription') ?? '').trim(),
 			date: String(formData.get('date') ?? '').trim(),
 			time: String(formData.get('time') ?? '').trim()
 		};
 
-		const acceptedWaitingFee =
-			formData.get('acceptedWaitingFee') === 'on';
+		const acceptedWaitingFee = formData.get('acceptedWaitingFee') === 'on';
 
 		const files = formData
 			.getAll('attachments')
-			.filter(
-				(value): value is File =>
-					value instanceof File && value.size > 0
-			);
+			.filter((value): value is File => value instanceof File && value.size > 0);
 
 		if (
 			!values.fullName ||
@@ -188,11 +167,7 @@ export const actions: Actions = {
 			});
 		}
 
-		if (
-			!Object.values(EquipmentType).includes(
-				values.equipmentType as EquipmentType
-			)
-		) {
+		if (!Object.values(EquipmentType).includes(values.equipmentType as EquipmentType)) {
 			return fail(400, {
 				success: false,
 				message: 'El tipo de equipo seleccionado no es válido.',
@@ -200,11 +175,7 @@ export const actions: Actions = {
 			});
 		}
 
-		if (
-			!Object.values(VisitReason).includes(
-				values.visitReason as VisitReason
-			)
-		) {
+		if (!Object.values(VisitReason).includes(values.visitReason as VisitReason)) {
 			return fail(400, {
 				success: false,
 				message: 'El motivo de la visita seleccionado no es válido.',
@@ -223,8 +194,7 @@ export const actions: Actions = {
 		if (!acceptedWaitingFee) {
 			return fail(400, {
 				success: false,
-				message:
-					'Debés aceptar el aviso sobre la espera o cancelación sin aviso previo.',
+				message: 'Debés aceptar el aviso sobre la espera o cancelación sin aviso previo.',
 				values
 			});
 		}
@@ -239,13 +209,7 @@ export const actions: Actions = {
 			});
 		}
 
-		/*
-		 * Se guarda al mediodía UTC para evitar que al mostrar la fecha
-		 * en Argentina aparezca el día anterior por diferencia horaria.
-		 */
-		const appointmentDate = new Date(
-			`${values.date}T12:00:00.000Z`
-		);
+		const appointmentDate = new Date(`${values.date}T12:00:00.000Z`);
 
 		if (Number.isNaN(appointmentDate.getTime())) {
 			return fail(400, {
@@ -284,7 +248,7 @@ export const actions: Actions = {
 				date: appointmentDate,
 				time: values.time,
 				status: {
-					in: ['PENDIENTE', 'CONFIRMADO']
+					in: activeStatuses
 				}
 			},
 			select: {
@@ -295,8 +259,7 @@ export const actions: Actions = {
 		if (existingAppointment) {
 			return fail(409, {
 				success: false,
-				message:
-					'Ese horario ya está ocupado. Elegí otro horario disponible.',
+				message: 'Ese horario ya está ocupado. Elegí otro horario disponible.',
 				values
 			});
 		}
@@ -305,16 +268,15 @@ export const actions: Actions = {
 			where: {
 				date: appointmentDate,
 				status: {
-					in: ['PENDIENTE', 'CONFIRMADO']
+					in: activeStatuses
 				}
 			}
 		});
 
-		if (appointmentsForDay >= 4) {
+		if (appointmentsForDay >= MAX_APPOINTMENTS_PER_DAY) {
 			return fail(409, {
 				success: false,
-				message:
-					'Ya se alcanzó el máximo de cuatro turnos para ese día.',
+				message: 'Ya se alcanzó el máximo de cuatro turnos para ese día.',
 				values
 			});
 		}
@@ -349,8 +311,7 @@ export const actions: Actions = {
 					date: appointmentDate,
 					time: values.time,
 					status: 'PENDIENTE',
-					equipmentType:
-						values.equipmentType as EquipmentType,
+					equipmentType: values.equipmentType as EquipmentType,
 					visitReason: values.visitReason as VisitReason,
 					problemDescription: values.problemDescription,
 					address: values.address,
@@ -358,7 +319,6 @@ export const actions: Actions = {
 					city: 'Posadas',
 					waitingFeeNotice: true,
 					waitingFeeAmount: 30000,
-
 					attachments:
 						storedFiles.length > 0
 							? {
@@ -374,16 +334,8 @@ export const actions: Actions = {
 				}
 			});
 
-			throw redirect(
-				303,
-				`/solicitar-turno/exito?id=${appointment.id}`
-			);
+			throw redirect(303, `/solicitar-turno/exito?id=${appointment.id}`);
 		} catch (error) {
-			/*
-			 * Los redirects de SvelteKit son excepciones internas.
-			 * No debemos borrar los archivos cuando el turno fue creado
-			 * correctamente y únicamente se está redirigiendo.
-			 */
 			if (
 				typeof error === 'object' &&
 				error !== null &&
@@ -399,8 +351,7 @@ export const actions: Actions = {
 
 			return fail(500, {
 				success: false,
-				message:
-					'No se pudo registrar el turno. Intentá nuevamente.',
+				message: 'No se pudo registrar el turno. Intentá nuevamente.',
 				values
 			});
 		}
