@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: oso_polar_postgres
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: oso_polar_app
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - '3001:3000'
+    volumes:
+      - ./static/uploads:/app/static/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backups:
+    image: postgres:17-alpine
+    container_name: oso_polar_backups
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    volumes:
+      - ./backups:/backups
+      - ./docker/backup/backup.sh:/backup.sh:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh /backup.sh
+
+volumes:
+  postgres_data:
