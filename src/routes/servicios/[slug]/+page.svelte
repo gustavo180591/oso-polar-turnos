@@ -3,6 +3,38 @@
 
 	let { data }: { data: PageData } = $props();
 
+	let currentImageIndex = $state(0);
+
+	const galleryImages = $derived(data.service.galleryImages);
+	const hasGalleryImages = $derived(galleryImages.length > 0);
+	const currentImage = $derived(
+		hasGalleryImages
+			? galleryImages[currentImageIndex]
+			: {
+					id: 'fallback',
+					src: '/brand/logo-horizontal.jpeg',
+					alt: data.service.title
+				}
+	);
+
+	function previousImage() {
+		if (!hasGalleryImages) return;
+
+		currentImageIndex =
+			currentImageIndex === 0 ? galleryImages.length - 1 : currentImageIndex - 1;
+	}
+
+	function nextImage() {
+		if (!hasGalleryImages) return;
+
+		currentImageIndex =
+			currentImageIndex === galleryImages.length - 1 ? 0 : currentImageIndex + 1;
+	}
+
+	function selectImage(index: number) {
+		currentImageIndex = index;
+	}
+
 	function useFallbackImage(event: Event) {
 		const image = event.currentTarget as HTMLImageElement;
 		image.src = '/brand/logo-horizontal.jpeg';
@@ -51,24 +83,63 @@
 					</div>
 				</div>
 
-				<div class="grid gap-3">
-					<img
-						src={data.service.images[0]?.src ?? '/brand/logo-horizontal.jpeg'}
-						alt={data.service.images[0]?.alt ?? data.service.title}
-						onerror={useFallbackImage}
-						class="h-72 w-full rounded-3xl bg-slate-950 object-cover shadow-lg"
-					/>
+				<div class="rounded-3xl border border-slate-200 bg-slate-50 p-3 shadow-sm">
+					<div class="relative overflow-hidden rounded-3xl bg-slate-950">
+						<img
+							src={currentImage.src}
+							alt={currentImage.alt}
+							onerror={useFallbackImage}
+							class="h-72 w-full object-cover shadow-lg"
+						/>
 
-					<div class="grid grid-cols-2 gap-3">
-						{#each data.service.images.slice(1) as image}
-							<img
-								src={image.src}
-								alt={image.alt}
-								onerror={useFallbackImage}
-								class="h-36 w-full rounded-2xl bg-slate-950 object-cover shadow-md"
-							/>
-						{/each}
+						{#if galleryImages.length > 1}
+							<button
+								type="button"
+								onclick={previousImage}
+								class="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl font-black text-slate-900 shadow-lg hover:bg-white"
+								aria-label="Imagen anterior"
+							>
+								‹
+							</button>
+
+							<button
+								type="button"
+								onclick={nextImage}
+								class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-xl font-black text-slate-900 shadow-lg hover:bg-white"
+								aria-label="Imagen siguiente"
+							>
+								›
+							</button>
+						{/if}
 					</div>
+
+					{#if galleryImages.length > 1}
+						<div class="mt-3 flex gap-2 overflow-x-auto pb-1">
+							{#each galleryImages as image, index}
+								<button
+									type="button"
+									onclick={() => selectImage(index)}
+									class={`h-20 w-24 shrink-0 overflow-hidden rounded-2xl border-2 ${
+										currentImageIndex === index ? 'border-sky-500' : 'border-transparent'
+									}`}
+									aria-label={`Ver imagen ${index + 1}`}
+								>
+									<img
+										src={image.src}
+										alt={image.alt}
+										onerror={useFallbackImage}
+										class="h-full w-full object-cover"
+									/>
+								</button>
+							{/each}
+						</div>
+					{/if}
+
+					{#if !hasGalleryImages}
+						<p class="mt-3 rounded-2xl bg-amber-50 p-3 text-sm font-bold text-amber-800">
+							Este servicio todavía no tiene fotos cargadas desde el admin.
+						</p>
+					{/if}
 				</div>
 			</div>
 

@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { publicServices } from '$lib/services/public-services';
+	import type { PageData } from './$types';
+
+	let { data }: { data: PageData } = $props();
+
+	function useFallbackImage(event: Event) {
+		const image = event.currentTarget as HTMLImageElement;
+		image.src = '/brand/logo-horizontal.jpeg';
+	}
 </script>
 
 <svelte:head>
@@ -41,26 +48,35 @@
 			</div>
 
 			<div class="mt-8 grid gap-4 md:grid-cols-2">
-				{#each publicServices as service}
+				{#each data.services as service}
 					<a
 						href={`/servicios/${service.slug}`}
-						class="rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm transition hover:-translate-y-1 hover:border-sky-300 hover:bg-white hover:shadow-lg"
+						class="overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 shadow-sm transition hover:-translate-y-1 hover:border-sky-300 hover:bg-white hover:shadow-lg"
 					>
-						<p class="text-sm font-black uppercase tracking-wide text-sky-600">
-							{service.shortTitle}
-						</p>
+						<img
+							src={service.mainImageUrl}
+							alt={service.title}
+							onerror={useFallbackImage}
+							class="h-52 w-full bg-slate-950 object-cover"
+						/>
 
-						<h2 class="mt-2 text-2xl font-black text-slate-950">
-							{service.title}
-						</h2>
+						<div class="p-5">
+							<p class="text-sm font-black uppercase tracking-wide text-sky-600">
+								{service.shortTitle}
+							</p>
 
-						<p class="mt-3 leading-7 text-slate-600">
-							{service.summary}
-						</p>
+							<h2 class="mt-2 text-2xl font-black text-slate-950">
+								{service.title}
+							</h2>
 
-						<p class="mt-4 font-black text-sky-700">
-							Ver detalles →
-						</p>
+							<p class="mt-3 leading-7 text-slate-600">
+								{service.summary}
+							</p>
+
+							<p class="mt-4 font-black text-sky-700">
+								Ver detalles →
+							</p>
+						</div>
 					</a>
 				{/each}
 			</div>

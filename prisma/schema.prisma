@@ -177,3 +177,18 @@ model Session {
   @@index([token])
   @@index([expiresAt])
 }
+
+model PublicServiceImage {
+  id        String   @id @default(uuid())
+  slug      String
+  imageUrl  String
+  fileName  String?
+  mimeType  String?
+  size      Int?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([slug])
+  @@index([slug, position])
+}
