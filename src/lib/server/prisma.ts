@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, type Prisma } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { env } from '$env/dynamic/private';
 
@@ -10,11 +10,14 @@ const globalForPrisma = globalThis as unknown as {
 	prisma: PrismaClient | undefined;
 };
 
+const logLevels: Prisma.LogLevel[] =
+	env.NODE_ENV === 'production' ? ['error', 'warn'] : ['query', 'error', 'warn'];
+
 export const prisma =
 	globalForPrisma.prisma ??
 	new PrismaClient({
 		adapter,
-		log: ['query', 'error', 'warn']
+		log: logLevels
 	});
 
 if (env.NODE_ENV !== 'production') {
