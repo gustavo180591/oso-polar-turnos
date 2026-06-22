@@ -60,6 +60,13 @@
 				>
 					Solicitar turno
 				</a>
+
+				<a
+					href="/servicios"
+					class="rounded-full border border-slate-300 bg-white px-6 py-3 text-center font-black text-slate-700 hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
+				>
+					Ver servicios
+				</a>
 			</div>
 
 			<div class="mt-8 grid gap-3 sm:grid-cols-3">
@@ -86,25 +93,57 @@
 					</p>
 
 					<div class="mt-4 grid gap-3 sm:grid-cols-2">
-						<div class="rounded-2xl bg-white/10 p-4">
+						<a
+							href="/servicios/limpieza-aire-acondicionado"
+							class="group rounded-2xl bg-white/10 p-4 transition hover:-translate-y-1 hover:bg-white/15 hover:shadow-lg"
+						>
 							<p class="font-black">Limpieza</p>
-							<p class="mt-1 text-sm text-slate-300">Aires acondicionados y equipos de frío.</p>
-						</div>
+							<p class="mt-1 text-sm text-slate-300">
+								Aires acondicionados y equipos de frío.
+							</p>
+							<p class="mt-3 text-xs font-black uppercase tracking-wide text-sky-300 group-hover:text-sky-200">
+								Ver detalle →
+							</p>
+						</a>
 
-						<div class="rounded-2xl bg-white/10 p-4">
+						<a
+							href="/servicios/mantenimiento-preventivo"
+							class="group rounded-2xl bg-white/10 p-4 transition hover:-translate-y-1 hover:bg-white/15 hover:shadow-lg"
+						>
 							<p class="font-black">Mantenimiento</p>
-							<p class="mt-1 text-sm text-slate-300">Control preventivo y revisión general.</p>
-						</div>
+							<p class="mt-1 text-sm text-slate-300">
+								Control preventivo y revisión general.
+							</p>
+							<p class="mt-3 text-xs font-black uppercase tracking-wide text-sky-300 group-hover:text-sky-200">
+								Ver detalle →
+							</p>
+						</a>
 
-						<div class="rounded-2xl bg-white/10 p-4">
+						<a
+							href="/servicios/reparacion-equipos-frio"
+							class="group rounded-2xl bg-white/10 p-4 transition hover:-translate-y-1 hover:bg-white/15 hover:shadow-lg"
+						>
 							<p class="font-black">Reparación</p>
-							<p class="mt-1 text-sm text-slate-300">Heladeras, freezers y aires acondicionados.</p>
-						</div>
+							<p class="mt-1 text-sm text-slate-300">
+								Heladeras, freezers y aires acondicionados.
+							</p>
+							<p class="mt-3 text-xs font-black uppercase tracking-wide text-sky-300 group-hover:text-sky-200">
+								Ver detalle →
+							</p>
+						</a>
 
-						<div class="rounded-2xl bg-white/10 p-4">
+						<a
+							href="/servicios/diagnostico-tecnico"
+							class="group rounded-2xl bg-white/10 p-4 transition hover:-translate-y-1 hover:bg-white/15 hover:shadow-lg"
+						>
 							<p class="font-black">Diagnóstico</p>
-							<p class="mt-1 text-sm text-slate-300">Evaluación del problema del equipo.</p>
-						</div>
+							<p class="mt-1 text-sm text-slate-300">
+								Evaluación del problema del equipo.
+							</p>
+							<p class="mt-3 text-xs font-black uppercase tracking-wide text-sky-300 group-hover:text-sky-200">
+								Ver detalle →
+							</p>
+						</a>
 					</div>
 				</div>
 
