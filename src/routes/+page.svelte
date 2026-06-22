@@ -2,10 +2,12 @@
 	<title>Oso Polar Refrigeración | Turnos online</title>
 </svelte:head>
 
-<section class="min-h-screen bg-linear-to-br from-sky-50 via-white to-slate-100 px-4 py-8 text-slate-900 sm:px-6 lg:px-8">
+<section
+	class="min-h-screen bg-linear-to-br from-sky-50 via-white to-slate-100 px-4 py-8 text-slate-900 sm:px-6 lg:px-8"
+>
 	<div class="mx-auto flex min-h-[calc(100vh-4rem)] max-w-5xl items-center">
 		<div class="w-full rounded-4xl border border-slate-200 bg-white p-6 shadow-xl sm:p-8 lg:p-10">
-			<div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+			<div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
 				<div class="flex items-center gap-4">
 					<img
 						src="/brand/logo-circular.jpeg"
@@ -24,11 +26,20 @@
 					</div>
 				</div>
 
-				<img
-					src="/brand/logo-horizontal.jpeg"
-					alt="Oso Polar Refrigeraciones"
-					class="hidden max-h-24 w-full max-w-xs rounded-3xl bg-slate-950 object-contain p-3 shadow-lg md:block"
-				/>
+				<div class="flex items-start justify-between gap-4 sm:flex-col sm:items-end">
+					<a
+						href="/admin"
+						class="rounded-full border border-slate-300 bg-white px-4 py-2 text-xs font-black uppercase tracking-wide text-slate-600 shadow-sm hover:border-sky-300 hover:bg-sky-50 hover:text-sky-700"
+					>
+						Admin
+					</a>
+
+					<img
+						src="/brand/logo-horizontal.jpeg"
+						alt="Oso Polar Refrigeraciones"
+						class="hidden max-h-24 w-full max-w-xs rounded-3xl bg-slate-950 object-contain p-3 shadow-lg md:block"
+					/>
+				</div>
 			</div>
 
 			<div class="mt-8">
@@ -49,44 +60,22 @@
 				>
 					Solicitar turno
 				</a>
-
-				<a
-					href="/admin"
-					class="rounded-full border border-slate-300 bg-white px-6 py-3 text-center font-black text-slate-700 hover:bg-slate-50"
-				>
-					Panel técnico
-				</a>
 			</div>
 
 			<div class="mt-8 grid gap-3 sm:grid-cols-3">
 				<div class="rounded-3xl bg-slate-50 p-4">
-					<p class="text-sm font-black text-slate-950">
-						Horarios
-					</p>
-
-					<p class="mt-1 text-sm text-slate-600">
-						Lunes a sábado
-					</p>
+					<p class="text-sm font-black text-slate-950">Horarios</p>
+					<p class="mt-1 text-sm text-slate-600">Lunes a sábado</p>
 				</div>
 
 				<div class="rounded-3xl bg-slate-50 p-4">
-					<p class="text-sm font-black text-slate-950">
-						Turnos diarios
-					</p>
-
-					<p class="mt-1 text-sm text-slate-600">
-						Hasta 4 por día
-					</p>
+					<p class="text-sm font-black text-slate-950">Turnos diarios</p>
+					<p class="mt-1 text-sm text-slate-600">Hasta 4 por día</p>
 				</div>
 
 				<div class="rounded-3xl bg-slate-50 p-4">
-					<p class="text-sm font-black text-slate-950">
-						Pagos
-					</p>
-
-					<p class="mt-1 text-sm text-slate-600">
-						Todos los medios
-					</p>
+					<p class="text-sm font-black text-slate-950">Pagos</p>
+					<p class="mt-1 text-sm text-slate-600">Todos los medios</p>
 				</div>
 			</div>
 
@@ -98,43 +87,23 @@
 
 					<div class="mt-4 grid gap-3 sm:grid-cols-2">
 						<div class="rounded-2xl bg-white/10 p-4">
-							<p class="font-black">
-								Limpieza
-							</p>
-
-							<p class="mt-1 text-sm text-slate-300">
-								Aires acondicionados y equipos de frío.
-							</p>
+							<p class="font-black">Limpieza</p>
+							<p class="mt-1 text-sm text-slate-300">Aires acondicionados y equipos de frío.</p>
 						</div>
 
 						<div class="rounded-2xl bg-white/10 p-4">
-							<p class="font-black">
-								Mantenimiento
-							</p>
-
-							<p class="mt-1 text-sm text-slate-300">
-								Control preventivo y revisión general.
-							</p>
+							<p class="font-black">Mantenimiento</p>
+							<p class="mt-1 text-sm text-slate-300">Control preventivo y revisión general.</p>
 						</div>
 
 						<div class="rounded-2xl bg-white/10 p-4">
-							<p class="font-black">
-								Reparación
-							</p>
-
-							<p class="mt-1 text-sm text-slate-300">
-								Heladeras, freezers y aires acondicionados.
-							</p>
+							<p class="font-black">Reparación</p>
+							<p class="mt-1 text-sm text-slate-300">Heladeras, freezers y aires acondicionados.</p>
 						</div>
 
 						<div class="rounded-2xl bg-white/10 p-4">
-							<p class="font-black">
-								Diagnóstico
-							</p>
-
-							<p class="mt-1 text-sm text-slate-300">
-								Evaluación del problema del equipo.
-							</p>
+							<p class="font-black">Diagnóstico</p>
+							<p class="mt-1 text-sm text-slate-300">Evaluación del problema del equipo.</p>
 						</div>
 					</div>
 				</div>
