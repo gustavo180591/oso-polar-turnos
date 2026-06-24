@@ -9,7 +9,9 @@
 		{ label: 'Calendario', href: '/admin/calendario' },
 		{ label: 'Clientes', href: '/admin/clientes' },
 		{ label: 'Servicios', href: '/admin/servicios' },
+		{ label: 'Configuración', href: '/admin/configuracion' },
 		{ label: 'Reportes', href: '/admin/reportes' }
+
 	];
 
 	function closeMenu() {

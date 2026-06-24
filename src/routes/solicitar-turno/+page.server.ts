@@ -4,12 +4,12 @@ import { extname, join } from 'node:path';
 import { fail, redirect } from '@sveltejs/kit';
 import { AppointmentStatus, AttachmentType, EquipmentType, VisitReason } from '@prisma/client';
 import { prisma } from '$lib/server/prisma';
+import { validateAppointmentSchedule } from '$lib/server/business-schedule';
 import type { Actions } from './$types';
 
 const MAX_FILES = 3;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const MAX_VIDEO_SIZE = 20 * 1024 * 1024;
-const MAX_APPOINTMENTS_PER_DAY = 4;
 const MAX_PENDING_APPOINTMENTS_PER_PHONE = 2;
 
 const activeStatuses: AppointmentStatus[] = [
@@ -20,8 +20,6 @@ const activeStatuses: AppointmentStatus[] = [
 const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 const allowedVideoTypes = new Set(['video/mp4', 'video/webm']);
-
-const allowedTimes = new Set(['08:30', '10:00', '15:00', '16:30', '18:00']);
 
 type FormValues = {
 	fullName: string;
@@ -167,6 +165,7 @@ export const actions: Actions = {
 				values
 			});
 		}
+
 		const pendingAppointmentsForPhone = await prisma.appointment.count({
 			where: {
 				status: 'PENDIENTE',
@@ -201,14 +200,6 @@ export const actions: Actions = {
 			});
 		}
 
-		if (!allowedTimes.has(values.time)) {
-			return fail(400, {
-				success: false,
-				message: 'El horario seleccionado no es válido.',
-				values
-			});
-		}
-
 		if (!acceptedWaitingFee) {
 			return fail(400, {
 				success: false,
@@ -237,16 +228,6 @@ export const actions: Actions = {
 			});
 		}
 
-		const dayOfWeek = appointmentDate.getUTCDay();
-
-		if (dayOfWeek === 0) {
-			return fail(400, {
-				success: false,
-				message: 'No se atienden turnos los domingos.',
-				values
-			});
-		}
-
 		const today = new Date();
 		today.setUTCHours(0, 0, 0, 0);
 
@@ -257,6 +238,19 @@ export const actions: Actions = {
 			return fail(400, {
 				success: false,
 				message: 'No podés solicitar un turno para una fecha pasada.',
+				values
+			});
+		}
+
+		const scheduleValidation = await validateAppointmentSchedule({
+			date: appointmentDate,
+			time: values.time
+		});
+
+		if (!scheduleValidation.ok) {
+			return fail(400, {
+				success: false,
+				message: scheduleValidation.message,
 				values
 			});
 		}
@@ -278,23 +272,6 @@ export const actions: Actions = {
 			return fail(409, {
 				success: false,
 				message: 'Ese horario ya está ocupado. Elegí otro horario disponible.',
-				values
-			});
-		}
-
-		const appointmentsForDay = await prisma.appointment.count({
-			where: {
-				date: appointmentDate,
-				status: {
-					in: activeStatuses
-				}
-			}
-		});
-
-		if (appointmentsForDay >= MAX_APPOINTMENTS_PER_DAY) {
-			return fail(409, {
-				success: false,
-				message: 'Ya se alcanzó el máximo de cuatro turnos para ese día.',
 				values
 			});
 		}

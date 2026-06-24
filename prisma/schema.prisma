@@ -192,3 +192,20 @@ model PublicServiceImage {
   @@index([slug])
   @@index([slug, position])
 }
+
+model BusinessSchedule {
+  id              String   @id @default(uuid())
+  dayOfWeek       Int      @unique
+  dayName         String
+  isEnabled       Boolean  @default(true)
+  morningStart    String?
+  morningEnd      String?
+  afternoonStart  String?
+  afternoonEnd    String?
+  maxAppointments Int      @default(4)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([dayOfWeek])
+  @@index([isEnabled])
+}

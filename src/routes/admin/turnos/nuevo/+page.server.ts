@@ -1,9 +1,8 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { EquipmentType, VisitReason, AppointmentStatus } from '@prisma/client';
 import { prisma } from '$lib/server/prisma';
+import { validateAppointmentSchedule } from '$lib/server/business-schedule';
 import type { Actions, PageServerLoad } from './$types';
-
-const allowedTimes = new Set(['08:30', '10:00', '15:00', '16:30', '18:00']);
 
 type FormValues = {
 	fullName: string;
@@ -23,7 +22,30 @@ function normalizePhone(phone: string): string {
 }
 
 export const load: PageServerLoad = async () => {
-	return {};
+	const schedules = await prisma.businessSchedule.findMany({
+		orderBy: {
+			dayOfWeek: 'asc'
+		},
+		select: {
+			dayOfWeek: true,
+			dayName: true,
+			isEnabled: true,
+			morningStart: true,
+			morningEnd: true,
+			afternoonStart: true,
+			afternoonEnd: true,
+			maxAppointments: true
+		}
+	});
+
+	const orderedSchedules = [
+		...schedules.filter((schedule) => schedule.dayOfWeek >= 1),
+		...schedules.filter((schedule) => schedule.dayOfWeek === 0)
+	];
+
+	return {
+		schedules: orderedSchedules
+	};
 };
 
 export const actions: Actions = {
@@ -103,30 +125,12 @@ export const actions: Actions = {
 			});
 		}
 
-		if (!allowedTimes.has(values.time)) {
-			return fail(400, {
-				success: false,
-				message: 'El horario seleccionado no es válido.',
-				values
-			});
-		}
-
 		const appointmentDate = new Date(`${values.date}T12:00:00.000Z`);
 
 		if (Number.isNaN(appointmentDate.getTime())) {
 			return fail(400, {
 				success: false,
 				message: 'La fecha seleccionada no es válida.',
-				values
-			});
-		}
-
-		const dayOfWeek = appointmentDate.getUTCDay();
-
-		if (dayOfWeek === 0) {
-			return fail(400, {
-				success: false,
-				message: 'No se atienden turnos los domingos.',
 				values
 			});
 		}
@@ -141,6 +145,19 @@ export const actions: Actions = {
 			return fail(400, {
 				success: false,
 				message: 'No podés crear un turno para una fecha pasada.',
+				values
+			});
+		}
+
+		const scheduleValidation = await validateAppointmentSchedule({
+			date: appointmentDate,
+			time: values.time
+		});
+
+		if (!scheduleValidation.ok) {
+			return fail(400, {
+				success: false,
+				message: scheduleValidation.message,
 				values
 			});
 		}
@@ -162,23 +179,6 @@ export const actions: Actions = {
 			return fail(409, {
 				success: false,
 				message: 'Ese horario ya está ocupado. Elegí otro horario disponible.',
-				values
-			});
-		}
-
-		const appointmentsForDay = await prisma.appointment.count({
-			where: {
-				date: appointmentDate,
-				status: {
-					in: ['PENDIENTE', 'CONFIRMADO']
-				}
-			}
-		});
-
-		if (appointmentsForDay >= 4) {
-			return fail(409, {
-				success: false,
-				message: 'Ya se alcanzó el máximo de cuatro turnos para ese día.',
 				values
 			});
 		}
