@@ -3,15 +3,27 @@
 
 	let menuOpen = $state(false);
 
-	const navItems = [
+	type NavItem = {
+		label: string;
+		href: string;
+		children?: NavItem[];
+	};
+
+	const navItems: NavItem[] = [
 		{ label: 'Dashboard', href: '/admin' },
 		{ label: 'Turnos', href: '/admin/turnos' },
 		{ label: 'Calendario', href: '/admin/calendario' },
 		{ label: 'Clientes', href: '/admin/clientes' },
-		{ label: 'Servicios', href: '/admin/servicios' },
+		{
+			label: 'Servicios',
+			href: '/admin/servicios',
+			children: [
+				{ label: 'Servicios técnicos', href: '/admin/servicios' },
+				{ label: 'Fotos de servicios', href: '/admin/servicios-publicos' }
+			]
+		},
 		{ label: 'Configuración', href: '/admin/configuracion' },
 		{ label: 'Reportes', href: '/admin/reportes' }
-
 	];
 
 	function closeMenu() {
@@ -41,12 +53,34 @@
 
 		<nav class="mt-10 grid gap-2">
 			{#each navItems as item (item.href)}
-				<a
-					href={item.href}
-					class="rounded-2xl px-4 py-3 font-bold text-slate-700 hover:bg-sky-50 hover:text-sky-700"
-				>
-					{item.label}
-				</a>
+				{#if item.children}
+					<div class="grid gap-1">
+						<a
+							href={item.href}
+							class="rounded-2xl px-4 py-3 font-bold text-slate-700 hover:bg-sky-50 hover:text-sky-700"
+						>
+							{item.label}
+						</a>
+
+						<div class="ml-4 grid gap-1 border-l border-slate-200 pl-3">
+							{#each item.children as child (child.href)}
+								<a
+									href={child.href}
+									class="rounded-2xl px-4 py-2 text-sm font-bold text-slate-600 hover:bg-sky-50 hover:text-sky-700"
+								>
+									{child.label}
+								</a>
+							{/each}
+						</div>
+					</div>
+				{:else}
+					<a
+						href={item.href}
+						class="rounded-2xl px-4 py-3 font-bold text-slate-700 hover:bg-sky-50 hover:text-sky-700"
+					>
+						{item.label}
+					</a>
+				{/if}
 			{/each}
 		</nav>
 
@@ -131,13 +165,37 @@
 				<div class="mt-4 rounded-3xl border border-slate-200 bg-white p-3 shadow-xl lg:hidden">
 					<nav class="grid gap-2">
 						{#each navItems as item (item.href)}
-							<a
-								href={item.href}
-								onclick={closeMenu}
-								class="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-black text-slate-700 hover:bg-sky-50 hover:text-sky-700"
-							>
-								{item.label}
-							</a>
+							{#if item.children}
+								<div class="grid gap-1 rounded-2xl bg-slate-50 p-2">
+									<a
+										href={item.href}
+										onclick={closeMenu}
+										class="rounded-2xl px-4 py-3 text-sm font-black text-slate-700 hover:bg-sky-50 hover:text-sky-700"
+									>
+										{item.label}
+									</a>
+
+									<div class="ml-3 grid gap-1 border-l border-slate-200 pl-3">
+										{#each item.children as child (child.href)}
+											<a
+												href={child.href}
+												onclick={closeMenu}
+												class="rounded-2xl px-4 py-2 text-sm font-bold text-slate-600 hover:bg-sky-50 hover:text-sky-700"
+											>
+												{child.label}
+											</a>
+										{/each}
+									</div>
+								</div>
+							{:else}
+								<a
+									href={item.href}
+									onclick={closeMenu}
+									class="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-black text-slate-700 hover:bg-sky-50 hover:text-sky-700"
+								>
+									{item.label}
+								</a>
+							{/if}
 						{/each}
 
 						<a
