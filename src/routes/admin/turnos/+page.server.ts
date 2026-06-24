@@ -1,4 +1,6 @@
 import { fail } from '@sveltejs/kit';
+import { unlink } from 'node:fs/promises';
+import { join } from 'node:path';
 import { prisma } from '$lib/server/prisma';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -21,6 +23,16 @@ async function getAppointmentId(request: Request): Promise<string | null> {
 	const appointmentId = String(formData.get('appointmentId') ?? '').trim();
 
 	return appointmentId || null;
+}
+
+async function removeLocalUpload(url: string) {
+	if (!url.startsWith('/uploads/')) {
+		return;
+	}
+
+	const relativePath = url.replace(/^\//, '');
+
+	await unlink(join(process.cwd(), 'static', relativePath)).catch(() => undefined);
 }
 
 export const actions: Actions = {
@@ -145,6 +157,42 @@ export const actions: Actions = {
 		return {
 			success: true,
 			message: 'Turno cancelado correctamente.'
+		};
+	},
+
+	deleteAppointment: async ({ request }) => {
+		const appointmentId = await getAppointmentId(request);
+
+		if (!appointmentId) {
+			return fail(400, {
+				message: 'No se recibió el identificador del turno.'
+			});
+		}
+
+		const appointment = await prisma.appointment.findUnique({
+			where: { id: appointmentId },
+			include: {
+				attachments: true
+			}
+		});
+
+		if (!appointment) {
+			return fail(404, {
+				message: 'El turno no existe o ya fue eliminado.'
+			});
+		}
+
+		for (const attachment of appointment.attachments) {
+			await removeLocalUpload(attachment.url);
+		}
+
+		await prisma.appointment.delete({
+			where: { id: appointmentId }
+		});
+
+		return {
+			success: true,
+			message: 'Turno eliminado correctamente.'
 		};
 	}
 };

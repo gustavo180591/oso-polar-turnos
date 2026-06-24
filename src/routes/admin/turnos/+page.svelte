@@ -47,7 +47,7 @@
 <section>
 	<div class="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 		<div>
-			<p class="text-sm font-bold uppercase tracking-wide text-sky-700">Panel técnico</p>
+			<p class="text-sm font-bold tracking-wide text-sky-700 uppercase">Panel técnico</p>
 			<h2 class="mt-2 text-3xl font-black tracking-tight text-slate-950">Turnos</h2>
 			<p class="mt-2 text-slate-600">
 				Listado de solicitudes registradas desde la web y turnos cargados manualmente.
@@ -93,7 +93,7 @@
 				<article class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
 					<div class="flex items-start justify-between gap-3">
 						<div class="min-w-0">
-							<p class="wrap-break-word text-lg font-black text-slate-950">
+							<p class="text-lg font-black wrap-break-word text-slate-950">
 								{appointment.client.fullName}
 							</p>
 
@@ -113,9 +113,7 @@
 
 					<div class="mt-5 grid gap-3 text-sm">
 						<div class="rounded-2xl bg-slate-50 p-4">
-							<p class="font-bold text-slate-500">
-								Fecha y horario
-							</p>
+							<p class="font-bold text-slate-500">Fecha y horario</p>
 
 							<p class="mt-1 font-black text-slate-950">
 								{formatDate(appointment.date)} · {appointment.time}
@@ -124,9 +122,7 @@
 
 						<div class="grid gap-3 sm:grid-cols-2">
 							<div class="rounded-2xl bg-slate-50 p-4">
-								<p class="font-bold text-slate-500">
-									Equipo
-								</p>
+								<p class="font-bold text-slate-500">Equipo</p>
 
 								<p class="mt-1 font-semibold text-slate-950">
 									{equipmentLabels[appointment.equipmentType]}
@@ -134,9 +130,7 @@
 							</div>
 
 							<div class="rounded-2xl bg-slate-50 p-4">
-								<p class="font-bold text-slate-500">
-									Motivo
-								</p>
+								<p class="font-bold text-slate-500">Motivo</p>
 
 								<p class="mt-1 font-semibold text-slate-950">
 									{reasonLabels[appointment.visitReason]}
@@ -145,11 +139,9 @@
 						</div>
 
 						<div class="rounded-2xl bg-slate-50 p-4">
-							<p class="font-bold text-slate-500">
-								Dirección
-							</p>
+							<p class="font-bold text-slate-500">Dirección</p>
 
-							<p class="mt-1 wrap-break-word font-semibold text-slate-950">
+							<p class="mt-1 font-semibold wrap-break-word text-slate-950">
 								{appointment.address}
 							</p>
 
@@ -213,36 +205,74 @@
 									Cancelar
 								</button>
 							</form>
+							<form
+								method="POST"
+								action="?/deleteAppointment"
+								onsubmit={(event) => {
+									if (
+										!confirm(
+											'¿Seguro que querés eliminar este turno? Esta acción no se puede deshacer.'
+										)
+									) {
+										event.preventDefault();
+									}
+								}}
+							>
+								<input type="hidden" name="appointmentId" value={appointment.id} />
+
+								<button
+									type="submit"
+									class="rounded-full bg-slate-900 px-3 py-2 text-xs font-bold text-white hover:bg-black"
+								>
+									Eliminar
+								</button>
+							</form>
 						{/if}
 					</div>
 				</article>
 			{/each}
 		</div>
 
-		<div class="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm lg:block">
+		<div
+			class="hidden overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm lg:block"
+		>
 			<div class="overflow-x-auto">
 				<table class="min-w-[1100px] divide-y divide-slate-200">
 					<thead class="bg-slate-50">
 						<tr>
-							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+							<th
+								class="px-5 py-4 text-left text-xs font-black tracking-wide text-slate-500 uppercase"
+							>
 								Cliente
 							</th>
-							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+							<th
+								class="px-5 py-4 text-left text-xs font-black tracking-wide text-slate-500 uppercase"
+							>
 								Equipo
 							</th>
-							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+							<th
+								class="px-5 py-4 text-left text-xs font-black tracking-wide text-slate-500 uppercase"
+							>
 								Motivo
 							</th>
-							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+							<th
+								class="px-5 py-4 text-left text-xs font-black tracking-wide text-slate-500 uppercase"
+							>
 								Fecha
 							</th>
-							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+							<th
+								class="px-5 py-4 text-left text-xs font-black tracking-wide text-slate-500 uppercase"
+							>
 								Estado
 							</th>
-							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+							<th
+								class="px-5 py-4 text-left text-xs font-black tracking-wide text-slate-500 uppercase"
+							>
 								Dirección
 							</th>
-							<th class="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">
+							<th
+								class="px-5 py-4 text-left text-xs font-black tracking-wide text-slate-500 uppercase"
+							>
 								Acciones
 							</th>
 						</tr>
@@ -329,7 +359,7 @@
 
 												<button
 													type="submit"
-													class="rounded-full bg-green-600 px-3 py-2 text-xs font-bold text-white hover:bg-green-700"
+													class="w-full rounded-full bg-green-600 px-4 py-3 text-sm font-bold text-white hover:bg-green-700"
 												>
 													Finalizar
 												</button>
@@ -349,12 +379,36 @@
 
 												<button
 													type="submit"
-													class="rounded-full bg-red-600 px-3 py-2 text-xs font-bold text-white hover:bg-red-700"
+													class="w-full rounded-full bg-red-600 px-4 py-3 text-sm font-bold text-white hover:bg-red-700"
 												>
 													Cancelar
 												</button>
 											</form>
 										{/if}
+
+										<form
+											method="POST"
+											action="?/deleteAppointment"
+											use:enhance
+											onsubmit={(event) => {
+												if (
+													!confirm(
+														'¿Seguro que querés eliminar este turno? Esta acción no se puede deshacer.'
+													)
+												) {
+													event.preventDefault();
+												}
+											}}
+										>
+											<input type="hidden" name="appointmentId" value={appointment.id} />
+
+											<button
+												type="submit"
+												class="w-full rounded-full bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-black"
+											>
+												Eliminar
+											</button>
+										</form>
 									</div>
 								</td>
 							</tr>
