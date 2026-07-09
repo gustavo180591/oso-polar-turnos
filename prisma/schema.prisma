@@ -209,3 +209,15 @@ model BusinessSchedule {
   @@index([dayOfWeek])
   @@index([isEnabled])
 }
+
+model Holiday {
+  id          String   @id @default(uuid())
+  date        DateTime @unique
+  name        String
+  description String?
+  isEnabled   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isEnabled])
+}

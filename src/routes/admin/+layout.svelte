@@ -22,7 +22,14 @@
 				{ label: 'Fotos de servicios', href: '/admin/servicios-publicos' }
 			]
 		},
-		{ label: 'Configuración', href: '/admin/configuracion' },
+		{
+	label: 'Configuración',
+	href: '/admin/configuracion',
+	children: [
+		{ label: 'Días y horarios', href: '/admin/configuracion' },
+		{ label: 'Feriados', href: '/admin/configuracion/feriados' }
+	]
+},
 		{ label: 'Reportes', href: '/admin/reportes' }
 	];
 

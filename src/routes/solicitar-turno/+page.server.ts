@@ -4,8 +4,8 @@ import { extname, join } from 'node:path';
 import { fail, redirect } from '@sveltejs/kit';
 import { AppointmentStatus, AttachmentType, EquipmentType, VisitReason } from '@prisma/client';
 import { prisma } from '$lib/server/prisma';
-import { validateAppointmentSchedule } from '$lib/server/business-schedule';
-import type { Actions } from './$types';
+import { getEnabledHolidays, validateAppointmentSchedule } from '$lib/server/business-schedule';
+import type { Actions, PageServerLoad } from './$types';
 
 const MAX_FILES = 3;
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
@@ -116,6 +116,35 @@ async function saveFiles(files: File[]): Promise<StoredAttachment[]> {
 async function deleteStoredFiles(files: StoredAttachment[]): Promise<void> {
 	await Promise.allSettled(files.map((file) => unlink(file.absolutePath)));
 }
+
+export const load: PageServerLoad = async () => {
+	const schedules = await prisma.businessSchedule.findMany({
+		orderBy: {
+			dayOfWeek: 'asc'
+		},
+		select: {
+			dayOfWeek: true,
+			dayName: true,
+			isEnabled: true,
+			morningStart: true,
+			morningEnd: true,
+			afternoonStart: true,
+			afternoonEnd: true,
+			maxAppointments: true
+		}
+	});
+
+	const holidays = await getEnabledHolidays();
+
+	return {
+		schedules,
+		holidays: holidays.map((holiday) => ({
+			id: holiday.id,
+			name: holiday.name,
+			date: holiday.date.toISOString().slice(0, 10)
+		}))
+	};
+};
 
 export const actions: Actions = {
 	default: async ({ request }) => {

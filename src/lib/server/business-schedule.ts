@@ -6,12 +6,38 @@ type ValidateAppointmentInput = {
 	appointmentIdToIgnore?: string;
 };
 
+function toUtcNoonDate(date: Date) {
+	return new Date(
+		Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0, 0)
+	);
+}
+
 export async function getBusinessScheduleForDate(date: Date) {
 	const dayOfWeek = date.getUTCDay();
 
 	return prisma.businessSchedule.findUnique({
 		where: {
 			dayOfWeek
+		}
+	});
+}
+
+export async function getHolidayForDate(date: Date) {
+	return prisma.holiday.findFirst({
+		where: {
+			date: toUtcNoonDate(date),
+			isEnabled: true
+		}
+	});
+}
+
+export async function getEnabledHolidays() {
+	return prisma.holiday.findMany({
+		where: {
+			isEnabled: true
+		},
+		orderBy: {
+			date: 'asc'
 		}
 	});
 }
@@ -29,6 +55,15 @@ export async function validateAppointmentSchedule({
 	time,
 	appointmentIdToIgnore
 }: ValidateAppointmentInput) {
+	const holiday = await getHolidayForDate(date);
+
+	if (holiday) {
+		return {
+			ok: false,
+			message: `No se pueden tomar turnos el día seleccionado porque está marcado como feriado o día bloqueado: ${holiday.name}.`
+		};
+	}
+
 	const schedule = await getBusinessScheduleForDate(date);
 
 	if (!schedule || !schedule.isEnabled) {
@@ -84,4 +119,15 @@ export async function validateAppointmentSchedule({
 		ok: true,
 		message: 'Horario disponible.'
 	};
+}
+
+export async function getEnabledBusinessSchedules() {
+	return prisma.businessSchedule.findMany({
+		where: {
+			isEnabled: true
+		},
+		orderBy: {
+			dayOfWeek: 'asc'
+		}
+	});
 }

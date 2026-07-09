@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { EquipmentType, VisitReason, AppointmentStatus } from '@prisma/client';
 import { prisma } from '$lib/server/prisma';
-import { validateAppointmentSchedule } from '$lib/server/business-schedule';
+import { getEnabledHolidays, validateAppointmentSchedule } from '$lib/server/business-schedule';
 import type { Actions, PageServerLoad } from './$types';
 
 type FormValues = {
@@ -38,13 +38,20 @@ export const load: PageServerLoad = async () => {
 		}
 	});
 
+	const holidays = await getEnabledHolidays();
+
 	const orderedSchedules = [
 		...schedules.filter((schedule) => schedule.dayOfWeek >= 1),
 		...schedules.filter((schedule) => schedule.dayOfWeek === 0)
 	];
 
 	return {
-		schedules: orderedSchedules
+		schedules: orderedSchedules,
+		holidays: holidays.map((holiday) => ({
+			id: holiday.id,
+			name: holiday.name,
+			date: holiday.date.toISOString().slice(0, 10)
+		}))
 	};
 };
 

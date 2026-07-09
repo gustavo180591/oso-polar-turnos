@@ -15,8 +15,15 @@
 		maxAppointments: number;
 	};
 
+	type Holiday = {
+		id: string;
+		name: string;
+		date: string;
+	};
+
 	type PageDataWithSchedules = {
 		schedules: Schedule[];
+		holidays: Holiday[];
 	};
 
 	type FlatpickrDayElement = HTMLElement & {
@@ -38,6 +45,14 @@
 	let timeValue = $state('');
 	let availableTimes = $state<string[]>([]);
 	let lastSyncedFormSignature = $state('');
+
+	function getDateKeyFromDate(date: Date) {
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+
+		return `${year}-${month}-${day}`;
+	}
 
 	function getDayOfWeekFromDateInput(dateInput: string) {
 		const [year, month, day] = dateInput.split('-').map(Number);
@@ -79,6 +94,19 @@
 		return times;
 	}
 
+	function getHolidayByDateKey(dateKey: string) {
+		return data.holidays.find((holiday: Holiday) => holiday.date === dateKey);
+	}
+
+	function isDateBlocked(date: Date) {
+		const dayOfWeek = date.getDay();
+		const dateKey = getDateKeyFromDate(date);
+		const schedule = data.schedules.find((item: Schedule) => item.dayOfWeek === dayOfWeek);
+		const holiday = getHolidayByDateKey(dateKey);
+
+		return !schedule || !schedule.isEnabled || Boolean(holiday);
+	}
+
 	function updateAvailableTimesForDate(dateInput: string, preserveSelectedTime = false) {
 		const previousTime = timeValue;
 
@@ -95,6 +123,15 @@
 
 		const dayOfWeek = getDayOfWeekFromDateInput(dateInput);
 		const schedule = data.schedules.find((item: Schedule) => item.dayOfWeek === dayOfWeek);
+		const holiday = getHolidayByDateKey(dateInput);
+
+		if (holiday) {
+			dateError = `No se pueden cargar turnos en esta fecha porque está marcada como feriado o día bloqueado: ${holiday.name}.`;
+			dateValue = '';
+			timeValue = '';
+			availableTimes = [];
+			return;
+		}
 
 		if (!schedule || !schedule.isEnabled) {
 			dateError = schedule
@@ -127,12 +164,7 @@
 			minDate: 'today',
 			disable: [
 				(date: Date) => {
-					const dayOfWeek = date.getDay();
-					const schedule = data.schedules.find(
-						(item: Schedule) => item.dayOfWeek === dayOfWeek
-					);
-
-					return !schedule || !schedule.isEnabled;
+					return isDateBlocked(date);
 				}
 			],
 			onChange: (_selectedDates: Date[], dateStr: string) => {
@@ -141,10 +173,14 @@
 			},
 			onDayCreate: (_dObj: Date[], _dStr: string, _fp: unknown, dayElem: HTMLElement) => {
 				const dayElement = dayElem as FlatpickrDayElement;
+				const dateKey = getDateKeyFromDate(dayElement.dateObj);
 				const dayOfWeek = dayElement.dateObj.getDay();
 				const schedule = data.schedules.find((item: Schedule) => item.dayOfWeek === dayOfWeek);
+				const holiday = getHolidayByDateKey(dateKey);
 
-				if (!schedule || !schedule.isEnabled) {
+				if (holiday) {
+					dayElement.title = `Día bloqueado: ${holiday.name}`;
+				} else if (!schedule || !schedule.isEnabled) {
 					dayElement.title = 'Día deshabilitado en Configuración';
 				}
 			}
